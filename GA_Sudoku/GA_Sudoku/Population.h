@@ -186,6 +186,10 @@ public:
 				// Add individuals to pool:
 				for(int i = 0; i < mPopulationSize; i++) {
 					int tN = map( tScores[i], tWorstScore, tBestScore, 1.0f, 100.0f );
+                    if (tWorstScore == tBestScore)
+                    {
+                        tN = 50.0f;
+                    }
 					for(int j = 0; j < tN; j++) {
 						tPool.push_back( mPopulation[ i ] );
 					}

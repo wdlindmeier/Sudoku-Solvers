@@ -33,6 +33,7 @@
 		32CC4D0C1801FD64008CE8FB /* GA_Sudoku.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = GA_Sudoku.1; sourceTree = "<group>"; };
 		32CC4D14180208C9008CE8FB /* Population.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Population.h; sourceTree = "<group>"; };
 		32E6C6CC18032C83000F3DF4 /* Solver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Solver.h; sourceTree = "<group>"; };
+		A902F7551808CC3800DFEEAE /* Helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Helpers.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +81,7 @@
 				32E6C6CC18032C83000F3DF4 /* Solver.h */,
 				32CC4D0A1801FD64008CE8FB /* main.cpp */,
 				32CC4D0C1801FD64008CE8FB /* GA_Sudoku.1 */,
+				A902F7551808CC3800DFEEAE /* Helpers.h */,
 			);
 			path = GA_Sudoku;
 			sourceTree = "<group>";

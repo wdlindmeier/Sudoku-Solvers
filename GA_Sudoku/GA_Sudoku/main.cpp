@@ -12,6 +12,7 @@
 #include "Constants.h"
 
 #include "Solver.h"
+#include "Helpers.h"
 
 /**
  * GENETIC SUDOKU SOLVER TOURNAMENT
@@ -29,33 +30,22 @@
 
 using namespace std;
 
-static int init_test_correct[] = {
-	8, 3, 5, 4, 1, 6, 9, 2, 7,
-	2, 9, 6, 8, 5, 7, 4, 3, 1,
-	4, 1, 7, 2, 9, 3, 6, 5, 8,
-	5, 6, 9, 1, 3, 4, 7, 8, 2,
-	1, 2, 3, 6, 7, 8, 5, 4, 9,
-	7, 4, 8, 5, 2, 9, 1, 6, 3,
-	6, 5, 2, 7, 8, 1, 3, 9, 4,
-	9, 8, 1, 3, 4, 5, 2, 7, 6,
-	3, 7, 4, 9, 6, 2, 8, 1, 5
-};
-
-static int init_test_incorrect[] = {
-	8, 3, 5, 4, 1, 6, 9, 2, 7,
-	2, 9, 6, 8, 5, 7, 4, 3, 1,
-	4, 1, 7, 2, 9, 3, 6, 5, 8,
-	5, 6, 9, 1, 3, 4, 7, 8, 2,
-	1, 2, 3, 6, 7, 8, 5, 4, 9,
-	7, 4, 8, 5, 2, 9, 1, 6, 3,
-	6, 5, 2, 7, 8, 1, 3, 9, 4,
-	9, 8, 1, 3, 4, 5, 2, 7, 6,
-	3, 7, 4, 9, 6, 2, 8, 1, 1
-};
-
 int main(int argc, const char * argv[])
 {
 	cout << "Performing sanity check..." << endl;
+
+    // TMP
+    TestIntUniquenessFunction();
+    TestLongUniquenessFunction();
+    TestIsSetUnique();
+    TestIdxToXY();
+    TestXYToIdx();
+    TestQuadIdx();
+    printBoard(init_test_correct, getTileCount());
+    float bestScore = fitnessFunc(init_test_correct, getTileCount());
+    cout << "Best Possible Score: " << bestScore << endl;
+    // exit(0);
+    
 	if( getBoardWin( init_test_correct, getTileCount() ) && !getBoardWin( init_test_incorrect, getTileCount() ) ) {
 		cout << "PASSED" << endl << endl;
 	}
@@ -70,7 +60,9 @@ int main(int argc, const char * argv[])
 	size_t tAvgDuration = 0;
 	size_t tAvgGenCount = 0;
 	// Run each test round:
-	for(int i = 0; i < getTestRunCount(); i++) {
+	for(int i = 0; i < getTestRunCount(); i++)
+    {
+        cout << "Test round #" << i << " started." << endl;
 		// Start timer:
 		size_t tTimeStart = getTimeNow();
 		// Create new population instance:
@@ -84,7 +76,9 @@ int main(int argc, const char * argv[])
 		// Initialize the population:
 		mPopulation->initialize();
 		// While running flag is set, keep running algorithm:
-		while( mPopulation->isRunning() ) {
+		while( mPopulation->isRunning() )
+        {
+//            cout << ".";
 			mPopulation->runGeneration();
 		}
 		// End timer:
@@ -97,7 +91,7 @@ int main(int argc, const char * argv[])
 		// Delete population:
 		delete mPopulation;
 		// Report progress:
-		cout << "Test round #" << i << " completed." << endl << endl;
+		cout << endl << "Test round #" << i << " completed." << endl << endl;
 	}
 	// Print score:
 	cout << "TEAM SCORE: \'" << kAuthorTeam << "\'" << endl;
