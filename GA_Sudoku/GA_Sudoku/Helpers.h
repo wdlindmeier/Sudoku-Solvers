@@ -322,4 +322,106 @@ static void TestIdxToXY()
     }
 }
 
+// A recursive function to create a success state
+static bool solveBoard(const int tileIndex,
+                       const int axisLength,
+                       const int nextValue,
+                       int *successBoard)
+{
+    int tileCount = axisLength * axisLength;
+    if (tileIndex == tileCount)
+    {
+        // They've all been solved
+        return true;
+    }
+    
+    // Check if the incoming value will satisfy the current board:
+    bool didEncounterError = false;
+    
+    int xy[2];
+    idxToXY(tileIndex, xy, axisLength);
+    int x = xy[0];
+    int y = xy[1];
+    int myQuadIdx = quadIndexForTileIndex(tileIndex, axisLength);
+    for (int pi = 0; pi < tileIndex; ++pi)
+    {
+        int pxy[2];
+        idxToXY(pi, pxy, axisLength);
+        
+        int px = pxy[0];
+        int py = pxy[1];
+        
+        int prevQuadIdx = quadIndexForTileIndex(pi, axisLength);
+        
+        if (px == x || // Same column
+            py == y || // Same row
+            prevQuadIdx == myQuadIdx) // Same quad
+        {
+            int prevVal = successBoard[pi];
+            if (prevVal == nextValue)
+            {
+                didEncounterError = true;
+                break;
+            }
+        }
+    }
+    
+    // If NO, return false.
+    if (didEncounterError)
+    {
+        return false;
+    }
+    
+    // If YES, dig deeper with new values.
+    successBoard[tileIndex] = nextValue;
+    
+    // The current board works, start trying more values.
+    for (int i = 0; i < axisLength; ++i)
+    {
+        if(solveBoard(tileIndex + 1,
+                      axisLength,
+                      i+1,
+                      successBoard))
+        {
+            // This works!
+            return true;
+        }
+    }
+    
+    // There are no feasible paths on this line.
+    return false;
+    
+}
+
+// TODO: This could be optimized to only try further
+// values that conform to the previous state of the
+// board, but board generation doesn't seem to be the bottleneck
+// for this trial.
+static bool randSuccessBoard(const size_t& iTileCount,
+                             int successBoard[],
+                             int startingValue)
+{
+    return solveBoard(0, sqrt( iTileCount ), startingValue, successBoard);
+}
+
+static void TestRandSuccessBoard()
+{
+    int tileLength = getTileCount();
+    int successBoard[tileLength];
+    for (int i = 0; i < tileLength; ++i)
+    {
+        // Clear it out
+        successBoard[i] = 0;
+    }
+    for (int i = getTileValueMin(); i < getTileValueMax() + 1; i++)
+    {
+        if (!randSuccessBoard(tileLength, successBoard, i))
+        {
+            std::cout << "ERROR: Couldn't create a random board with seed: " << i << std::endl;
+            // printBoard(successBoard, tileLength);
+            exit(1);
+        }
+    }
+}
+
 #endif
