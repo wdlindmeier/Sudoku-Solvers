@@ -65,11 +65,13 @@ static float intUniquenessScalar(int set[], int rowLength)
     // 0 is worst.
     // 1 is best.
     float result = 1.0f - ((float)totalVal / worstValue);
+    /*
     if (result < 1.0f)
     {
         // Give it a boost if its unique
         result = result * 0.5f;
     }
+    */
     return result;
 }
 

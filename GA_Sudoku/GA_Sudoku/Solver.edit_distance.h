@@ -12,6 +12,8 @@
 #include "Helpers.h"
 #include <iostream>
 
+using namespace std;
+
 /**
  * THE CONTENTS OF THIS FILE SHOULD BE EDITED TO PRODUCE A WINNING SUDOKU SOLVER...
  */
@@ -19,16 +21,14 @@
 #pragma mark -
 #pragma mark - TEAM_PARAMS
 
-static const std::string	kAuthorTeam		= "YOUR_TEAM_NAME_GOES_HERE";
-static const float			kMutationRate	= 0.002f; // 0.01f
+static const std::string	kAuthorTeam		= "🏇 🏆";
+static const float			kMutationRate	= 0.002;
 
 #pragma mark -
 #pragma mark - TEAM_FUNCTIONS
 
-static void printBoard(int* iBoard, const size_t& iTileCount)
+static void printBoard(const int* iBoard, const size_t& iTileCount) //(int* iBoard, const size_t& iTileCount)
 {
-	// EXERCISE: The contents of this function can be edited for testing, but will be reverted for league play...
-	
 	int tAxisLen = sqrt( iTileCount );
 	printf( "%ix%i BOARD:\n", tAxisLen, tAxisLen );
 	for(int i = 0; i < tAxisLen; i++) {
@@ -43,46 +43,59 @@ static void printBoard(int* iBoard, const size_t& iTileCount)
 static float fitnessFunc(const int* iBoard, const size_t& iTileCount)
 {
     // Simply scores against a known good board.
-    // Whatta hack, but it's fast! ;)
-    float totalScore = 1.0f;
+    // Seems to be the fastest solution.
+    static int *knownGoodBoard = NULL;
+
+    // HOWEVER, we must always check if its a win state,
+    // since all but 1 win state will fail the comparison with
+    // the known good board.
+    if (getBoardWin((int *)iBoard, iTileCount))
+    {
+        // Clear out the known good board.
+        delete knownGoodBoard;
+        knownGoodBoard = NULL;
+        // Return the max possible value
+        return std::numeric_limits<float>::max();
+    }
+    
+    if (knownGoodBoard == NULL)
+    {
+        knownGoodBoard = new int[iTileCount];
+        // All of the starting boards are the same,
+        // so seed the target board with a random number
+        // so we have a variation of solutions.
+        int seed = randomInt( getTileValueMin(), getTileValueMax() + 1 );
+        randSuccessBoard(iTileCount, knownGoodBoard, seed);
+    }
+
+    double totalScore = 1.0f;
     for (int i = 0; i < iTileCount; ++i)
     {
-        if(iBoard[i] == init_test_correct[i])
+        if(iBoard[i] == knownGoodBoard[i])
         {
-            totalScore *= 3;
+            totalScore *= 3.0;
         }
     }
     
-    totalScore /= iTileCount;
-	return totalScore;
+	return totalScore / iTileCount;
 }
 
 static void crossoverFunc(const int* iBoardA, const int* iBoardB, int* oBoard, const size_t& iTileCount)
 {
-	// EXERCISE: Please feel free to replace the contents of this function to improve upon your algorithm's performance...
-
     // Split in 1/2
 	int tMid = randomInt( 0, (int)iTileCount );
 	for(size_t i = 0; i < iTileCount; i++) {
 		if(i < tMid) { oBoard[i] = iBoardA[i]; }
 		else         { oBoard[i] = iBoardB[i]; }
 	}
-
-    /*
-    // Randomly pick from each
-    for(size_t i = 0; i < iTileCount; i++) {
-        int tMid = randomInt( 0, (int)iTileCount );
-		if(tMid < (iTileCount / 2)) { oBoard[i] = iBoardA[i]; }
-		else         { oBoard[i] = iBoardB[i]; }
-	}*/
 }
 
 static void mutateFunc(int* ioBoard, const size_t& iTileCount, const float& iMutationRate)
-{
-	// EXERCISE: Please feel free to replace the contents of this function to improve upon your algorithm's performance...
-	
-	for(int i = 0; i < iTileCount; i++) {
-		if( ( (float)rand() / (float)RAND_MAX ) < iMutationRate ) {
+{    
+	for(int i = 0; i < iTileCount; i++)
+    {
+		if( ( (float)rand() / (float)RAND_MAX ) < iMutationRate)
+        {
 			ioBoard[i] = randomInt( getTileValueMin(), getTileValueMax() + 1 );
 		}
 	}

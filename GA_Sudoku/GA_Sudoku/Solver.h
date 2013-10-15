@@ -40,52 +40,77 @@ static void printBoard(const int* iBoard, const size_t& iTileCount) //(int* iBoa
 	printf( "\n" );
 }
 
+static int checkSumForValues(int *values, int axisLength)
+{
+    int val = 0;
+    for(int i = 0; i < axisLength; i++)
+    {
+        val += values[i];
+    }
+    return val;
+}
+
 static float fitnessFunc(const int* iBoard, const size_t& iTileCount)
 {
-    // Simply scores against a known good board.
-    // Seems to be the fastest solution.
-    static int *knownGoodBoard = NULL;
-
-    // HOWEVER, we must always check if its a win state,
-    // since all but 1 win state will fail the comparison with
-    // the known good board.
-    if (getBoardWin((int *)iBoard, iTileCount))
+    int tAxisLen = sqrt( iTileCount );
+    float numCorrect = 0.0f;
+    for(int i = 0; i < tAxisLen; i++)
     {
-        // Clear out the known good board.
-        delete knownGoodBoard;
-        knownGoodBoard = NULL;
-        // Return the max possible value
-        return std::numeric_limits<float>::max();
-    }
-    
-    if (knownGoodBoard == NULL)
-    {
-        knownGoodBoard = new int[iTileCount];
-        // All of the starting boards are the same,
-        // so seed the target board with a random number
-        // so we have a variation of solutions.
-        int seed = randomInt( getTileValueMin(), getTileValueMax() + 1 );
-        randSuccessBoard(iTileCount, knownGoodBoard, seed);
-    }
-
-    double totalScore = 1.0f;
-    for (int i = 0; i < iTileCount; ++i)
-    {
-        if(iBoard[i] == knownGoodBoard[i])
+        int colVals[tAxisLen];
+        colValuesForTileIndex(i,
+                              iBoard,
+                              iTileCount,
+                              colVals);
+        numCorrect += intUniquenessScalar(colVals, tAxisLen);
+        /*
+        if (checkSumForValues(colVals, tAxisLen) == 45)
         {
-            totalScore *= 3.0;
+            numCorrect++;
         }
+        */
+        
+        int rowVals[tAxisLen];
+        rowValuesForTileIndex(i * tAxisLen,
+                              iBoard,
+                              iTileCount,
+                              rowVals);
+        numCorrect += intUniquenessScalar(rowVals, tAxisLen);
+        //numCorrect -= abs(checkSumForValues(rowVals, tAxisLen) - 45);
+        /*
+        if(checkSumForValues(rowVals, tAxisLen) == 45)
+        {
+            numCorrect++;
+        }
+        */
+        
+        int quadVals[tAxisLen];
+        quadValuesAtQuadIndex(iBoard,
+                              i,
+                              tAxisLen,
+                              quadVals);
+        numCorrect += intUniquenessScalar(quadVals, tAxisLen);
+        //numCorrect -= abs(checkSumForValues(quadVals, tAxisLen) - 45);
+        /*
+        if (checkSumForValues(quadVals, tAxisLen) == 45)
+        {
+            numCorrect++;
+        }
+        */
     }
-    
-	return totalScore / iTileCount;
+    static long numCounts = 0;
+    numCounts++;
+    if (numCounts % 5000 == 0)
+    {
+        cout << "numCorrect: " << numCorrect << endl;
+    }
+    return numCorrect;
 }
 
 static void crossoverFunc(const int* iBoardA, const int* iBoardB, int* oBoard, const size_t& iTileCount)
 {
-    // Split in 1/2
-	int tMid = randomInt( 0, (int)iTileCount );
-	for(size_t i = 0; i < iTileCount; i++) {
-		if(i < tMid) { oBoard[i] = iBoardA[i]; }
+    for(size_t i = 0; i < iTileCount; i++) {
+        int tMid = randomInt( 0, (int)iTileCount );
+		if(tMid < (iTileCount / 2)) { oBoard[i] = iBoardA[i]; }
 		else         { oBoard[i] = iBoardB[i]; }
 	}
 }
