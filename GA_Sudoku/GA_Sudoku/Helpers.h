@@ -35,6 +35,29 @@ static bool isSetUnique(int set[], int rowLength)
     return true;
 }
 
+static int numRepetitionsInAxis(int set[], int rowLength)
+{
+    int count[rowLength];// = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    for (int i = 0; i < rowLength; ++i)
+    {
+        count[i] = 0;
+    }
+    
+    int numReps = 0;
+    for (int i = 0; i < rowLength; ++i)
+    {
+        int idx = set[i] - 1; // convert to zero based
+        int curVal = count[idx];
+        if (curVal > 0)
+        {
+            numReps++;
+        }
+        // Mark as taken
+        count[idx] = curVal + 1;
+    }
+    return numReps;
+}
+
 static float intUniquenessScalar(int set[], int rowLength)
 {
     int count[rowLength];// = {0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -195,8 +218,14 @@ static void TestIntUniquenessFunction()
     }
 }
 
+static int xyToIdx(const int x, const int y, const int axisLength)
+{
+    // NOTE: Backwards
+    return (x * axisLength) + y;
+}
 
-static void quadValuesAtQuadIndex(const int* board, const int quadIndex, const int axisLength, int returnValues[])
+
+static void quadValuesForQuadIndex(const int quadIndex, const int* board, const int axisLength, int returnValues[])
 {
     // The Quad at index i
     // 0 1 2
@@ -211,7 +240,8 @@ static void quadValuesAtQuadIndex(const int* board, const int quadIndex, const i
         int qY = j / quadsLen;
         int tileX = quadXOff + qX;
         int tileY = quadYOff + qY;
-        int plotIdx = (tileX * axisLength) + tileY;
+        //int plotIdx = (tileX * axisLength) + tileY;
+        int plotIdx = xyToIdx(tileX, tileY, axisLength);
         returnValues[j] = board[plotIdx];
     }
 }
@@ -249,23 +279,20 @@ void TestQuadIdx()
     }
 }
 
-static void quadValuesForTileIndex(const int index,
-                                   const int* board,
-                                   const size_t& iTileCount,
-                                   int returnValues[])
+static void _quadValuesForTileIndex(const int index,
+                                    const int* board,
+                                    const int axisLength,
+                                    int returnValues[])
 {
-    int axisLength = sqrt( iTileCount );
     int quadIndex = quadIndexForTileIndex(index, axisLength);
-    quadValuesAtQuadIndex(board, quadIndex, axisLength, returnValues);
+    quadValuesForQuadIndex(quadIndex, board, axisLength, returnValues);
 }
 
-static void rowValuesForTileIndex(const int index,
-                                  const int* board,
-                                  const size_t& iTileCount,
-                                  int returnValues[])
+static void _rowValuesForTileIndex(const int index,
+                                   const int* board,
+                                   const int axisLength,
+                                   int returnValues[])
 {
-    int axisLength = sqrt( iTileCount );
-    //    int row = index / axisLength;
     int col = index % axisLength;
     
     for (int i = 0; i < axisLength; ++i)
@@ -275,12 +302,19 @@ static void rowValuesForTileIndex(const int index,
     }
 }
 
-static void colValuesForTileIndex(const int index,
+static void rowValuesForRowIndex(const int index,
+                                 const int* board,
+                                 const int axisLength,
+                                 int returnValues[])
+{
+    return _rowValuesForTileIndex(index, board, axisLength, returnValues);
+}
+
+static void _colValuesForTileIndex(const int index,
                                   const int* board,
-                                  const size_t& iTileCount,
+                                  const int axisLength,
                                   int returnValues[])
 {
-    int axisLength = sqrt( iTileCount );
     int row = index / axisLength;
     //    int col = index % axisLength;
     for (int i = 0; i < axisLength; ++i)
@@ -290,10 +324,48 @@ static void colValuesForTileIndex(const int index,
     }
 }
 
-static int xyToIdx(const int x, const int y, const int axisLength)
+static void colValuesForColumnIndex(const int index,
+                                    const int* board,
+                                    const int axisLength,
+                                    int returnValues[])
 {
-    // NOTE: Backwards
-    return (x * axisLength) + y;
+    return _colValuesForTileIndex(index * axisLength, board, axisLength, returnValues);
+}
+
+static void insertColValuesAtColumnIndex(int index, int * board, int axisLength, int values[])
+{
+    for (int i = 0; i < axisLength; ++i)
+    {
+        int plotIdx = (index * axisLength) + i;
+        board[plotIdx] = values[i];
+    }
+}
+
+static void insertRowValuesAtRowIndex(int index, int * board, int axisLength, int values[])
+{
+    int col = index % axisLength;
+    
+    for (int i = 0; i < axisLength; ++i)
+    {
+        int plotIdx = (i * axisLength) + col;
+        board[plotIdx] = values[i];
+    }
+}
+
+static void insertQuadValuesAtQuadIndex(int index, int * board, int axisLength, int values[])
+{
+    int quadsLen = sqrt(axisLength);
+    int quadXOff = (index % quadsLen) * quadsLen; // the number of x tile offset
+    int quadYOff = (index / quadsLen) * quadsLen; // the number of y tile offset
+    for (int j = 0; j < axisLength; ++j)
+    {
+        int qX = j % quadsLen;
+        int qY = j / quadsLen;
+        int tileX = quadXOff + qX;
+        int tileY = quadYOff + qY;
+        int plotIdx = xyToIdx(tileX, tileY, axisLength);
+        board[plotIdx] = values[j];
+    }
 }
 
 static void TestXYToIdx()
@@ -395,6 +467,17 @@ static bool solveBoard(const int tileIndex,
     
 }
 
+static int checkSumForValues(int *values, int axisLength)
+{
+    int val = 0;
+    for(int i = 0; i < axisLength; i++)
+    {
+        val += values[i];
+    }
+    return val;
+}
+
+
 // TODO: This could be optimized to only try further
 // values that conform to the previous state of the
 // board, but board generation doesn't seem to be the bottleneck
@@ -424,6 +507,308 @@ static void TestRandSuccessBoard()
             exit(1);
         }
     }
+}
+
+
+
+
+
+
+
+// TEST ----
+
+static int uniqueValues(int set[], int rowLength)
+{
+    int count[rowLength];// = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    for (int i = 0; i < rowLength; ++i)
+    {
+        count[i] = 0;
+    }
+    
+    int numDups = 0;
+    for (int i = 0; i < rowLength; ++i)
+    {
+        int idx = set[i] - 1; // convert to zero based
+        int curVal = count[idx] + 1;
+        count[idx] = curVal;
+        if (curVal > 1)
+        {
+            numDups++;
+            // Clear the dup
+            set[i] = 0;
+        }
+    }
+    
+    return numDups;
+}
+
+static void dedupBoard(int board[], int axisLength)
+{
+    int tileCount = axisLength*axisLength;
+
+    // Store the initial value
+    int oldBoard[tileCount];
+    for (int i = 0; i < tileCount; ++i)
+    {
+        oldBoard[i] = board[i];
+    }
+    
+    for(int i = 0; i < axisLength; i++)
+    {
+        int quadVals[axisLength];
+        quadValuesForQuadIndex(i,
+                               board,
+                               axisLength,
+                               quadVals);
+        int numQuadDups = uniqueValues(quadVals, axisLength);
+        if (numQuadDups > 0)
+        {
+            // Replace the board values
+            int quadsLen = sqrt(axisLength);
+            int quadXOff = (i % quadsLen) * quadsLen; // the number of x tile offset
+            int quadYOff = (i / quadsLen) * quadsLen; // the number of y tile offset
+            for (int j = 0; j < axisLength; ++j)
+            {
+                int qX = j % quadsLen;
+                int qY = j / quadsLen;
+                int tileX = quadXOff + qX;
+                int tileY = quadYOff + qY;
+                int plotIdx = xyToIdx(tileX, tileY, axisLength);
+                int val = quadVals[j];
+                if (val == 0)
+                {
+                    board[plotIdx] = val;
+                }
+            }
+        }
+//    }
+//    for(int i = 0; i < axisLength; i++)
+//    {
+        int colVals[axisLength];
+        colValuesForColumnIndex(i,
+                                board,
+                                axisLength,
+                                colVals);
+        int numColDups = uniqueValues(colVals, axisLength);
+        
+        if (numColDups > 0)
+        {
+            for (int j = 0; j < axisLength; j++)
+            {
+                int tileIndex = (j * axisLength) + i;
+                int val = colVals[j];
+                if (val == 0)
+                {
+                    board[tileIndex] = val;
+                }
+            }
+        }
+//    }
+//    for(int i = 0; i < axisLength; i++)
+//    {
+        int rowVals[axisLength];
+        rowValuesForRowIndex(i,
+                             board,
+                             axisLength,
+                             rowVals);
+        int numRowDups = uniqueValues(rowVals, axisLength);
+        if (numRowDups > 0)
+        {
+            // Replace the board values
+            for (int j = 0; j < axisLength; j++)
+            {
+                int tileIndex = (i * axisLength) + j;
+                int val = rowVals[j];
+                if (val == 0)
+                {
+                    board[tileIndex] = val;
+                }
+            }
+        }
+    }
+    
+    // NOW: Go back through and try to re-add values that
+    // were removed (but are now valid)
+    for (int i = 0; i < tileCount; ++i)
+    {
+        bool didDup = false;
+        int oldValue = oldBoard[i];
+        
+        int scratchValues[axisLength];
+        
+        _quadValuesForTileIndex(i, board, tileCount, scratchValues);
+        for (int j = 0; j < axisLength; ++j)
+        {
+            if (scratchValues[j] == oldValue)
+            {
+                didDup = true;
+                break;
+            }
+        }
+        
+        if (!didDup)
+        {
+            _colValuesForTileIndex(i, board, tileCount, scratchValues);
+            for (int j = 0; j < axisLength; ++j)
+            {
+                if (scratchValues[j] == oldValue)
+                {
+                    didDup = true;
+                    break;
+                }
+            }
+        }
+
+        if (!didDup)
+        {
+            _rowValuesForTileIndex(i, board, tileCount, scratchValues);
+            for (int j = 0; j < axisLength; ++j)
+            {
+                if (scratchValues[j] == oldValue)
+                {
+                    didDup = true;
+                    break;
+                }
+            }
+        }
+        
+        if (!didDup)
+        {
+            board[i] = oldValue;
+        }
+    }
+}
+
+bool isValueValid(int value, int board[], int index, int axisLength)
+{
+    int tileCount = axisLength*axisLength;
+    int scratchVals[axisLength];
+    _rowValuesForTileIndex(index, board, tileCount, scratchVals);
+    for (int i = 0; i < axisLength; ++i)
+    {
+        if (scratchVals[i] == value)
+        {
+            return false;
+        }
+    }
+    
+    _colValuesForTileIndex(index, board, tileCount, scratchVals);
+    for (int i = 0; i < axisLength; ++i)
+    {
+        if (scratchVals[i] == value)
+        {
+            return false;
+        }
+    }
+    
+    _quadValuesForTileIndex(index, board, tileCount, scratchVals);
+    for (int i = 0; i < axisLength; ++i)
+    {
+        if (scratchVals[i] == value)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+static long long NumIterations = 0;
+static bool solveTile(const int tileIndex,
+                      const int axisLength,
+                      const int nextValue,
+                      int *successBoard)
+{
+    NumIterations++;
+    if (NumIterations > 10000000)
+    {
+        return false;
+    }
+
+    int tileCount = axisLength * axisLength;
+    if (tileIndex == tileCount)
+    {
+        // They've all been solved
+        return true;
+    }
+    
+    bool isBlank = successBoard[tileIndex] == 0;
+    
+    if (isBlank)
+    {
+        // Only check undefined values.
+        if (isValueValid(nextValue, successBoard, tileIndex, axisLength))
+        {
+            // If YES, dig deeper with new values.
+            successBoard[tileIndex] = nextValue;
+        }
+        else
+        {
+            return false;
+        }
+    }    
+    
+    // The current board works, start trying more values.
+    for (int i = 0; i < axisLength; ++i)
+    {
+        int checkValue = i+1;
+        if(solveTile(tileIndex + 1,
+                     axisLength,
+                     checkValue,
+                     successBoard))
+        {
+            // This works!
+            return true;
+        }
+    }
+    
+    // There are no feasible paths on this line.
+    // Revert the value if necessary.
+    if (isBlank)
+    {
+        successBoard[tileIndex] = 0;
+    }
+    
+    return false;
+    
+}
+
+// Returns the number of steps it took to solve the board.
+// Returns -1 if the board was not solved.
+static long long boardSolver(int randBoard[], const size_t& iTileCount)
+{
+    // First, remove all duplicates
+    int axisLength = sqrt(iTileCount);
+    dedupBoard(randBoard, axisLength);
+    
+    NumIterations = 0;
+    bool didSolve = solveTile(0, axisLength, 1, randBoard);
+    if (didSolve)
+    {
+        std::cout << "Solved?\n";
+    }
+    else
+    {
+        std::cout << "Unsolved?\n";
+    }    
+    // Check if there are any undecided values left
+    didSolve = true;
+    for (int i = 0; i < iTileCount; ++i)
+    {
+        if (randBoard[i] == 0)
+        {
+            didSolve = false;
+            break;
+        }
+    }
+    if (didSolve)
+    {
+        std::cout << "SOLVED BOARD" << std::endl;
+    }
+    else
+    {
+        std::cout << "DIDNT SOLVE BOARD" << std::endl;
+    }
+    return NumIterations;
 }
 
 #endif

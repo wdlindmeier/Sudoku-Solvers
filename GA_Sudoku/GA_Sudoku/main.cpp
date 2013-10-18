@@ -70,7 +70,27 @@ int main(int argc, const char * argv[])
     printBoard(init_test_correct, getTileCount());
     float bestScore = fitnessFunc(init_test_correct, getTileCount());
     cout << "Best Possible Score: " << bestScore << endl;
-    // exit(0);
+
+    /*
+    // Solve 10 random boards
+    //for (int i = 0; i < 10; ++i)
+    while (true)
+    {
+        int randBoard[81];
+        //cout << "Rand Board: " << endl;
+        randomBoard(randBoard, 81);
+
+        int numSteps = boardSolver(randBoard, 81);
+        
+        printBoard(randBoard, 81);
+        
+        // Print out the deduped board
+        // printBoard(randBoard, 81);
+
+        cout << "numSteps: " << numSteps << endl;
+    }
+    exit(0);
+    */
     
 	if( getBoardWin( init_test_correct, getTileCount() ) && !getBoardWin( init_test_incorrect, getTileCount() ) ) {
 		cout << "PASSED" << endl << endl;
