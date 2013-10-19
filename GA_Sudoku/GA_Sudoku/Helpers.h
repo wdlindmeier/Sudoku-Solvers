@@ -35,6 +35,16 @@ static bool isSetUnique(int set[], int rowLength)
     return true;
 }
 
+static void randUniqueAxis(int values[], int axisLength)
+{
+    for (int i = 0; i < axisLength; ++i)
+    {
+        int randIndex = randomInt(0, i+1);
+        values[i] = values[randIndex];
+        values[randIndex] = i;
+    }
+}
+
 static int numRepetitionsInAxis(int set[], int rowLength)
 {
     int count[rowLength];// = {0, 0, 0, 0, 0, 0, 0, 0, 0};
