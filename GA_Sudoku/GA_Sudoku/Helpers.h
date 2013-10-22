@@ -45,6 +45,18 @@ static void randUniqueAxis(int values[], int axisLength)
     }
 }
 
+static void shuffleAxisValues(int values[], int length)
+{
+    for (int i = 0; i < length; ++i)
+    {
+        int randSwapIndex = randomInt(0, length);
+        int value = values[i];
+        int otherValue = values[randSwapIndex];
+        values[i] = otherValue;
+        values[randSwapIndex] = value;
+    }
+}
+
 static int numRepetitionsInAxis(int set[], int rowLength)
 {
     int count[rowLength];// = {0, 0, 0, 0, 0, 0, 0, 0, 0};

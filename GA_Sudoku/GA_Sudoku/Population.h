@@ -201,6 +201,7 @@ public:
 					mRunning = false;
 					return;
 				}
+
 				// Initialize new population:
 				DataType** tPopulation = new DataType*[ mPopulationSize ];
 				// Create a new population:
