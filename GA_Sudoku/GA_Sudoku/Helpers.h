@@ -794,6 +794,22 @@ static bool solveTile(const int tileIndex,
     
 }
 
+static float rowFitnessFunc(int rowVals[], const int axisLength)
+{
+    int numRepetitions = numRepetitionsInAxis(rowVals, axisLength);
+    return pow(2, -numRepetitions);
+}
+
+
+static void sampleBoardAtIndex(const int* board,
+                               const int order,
+                               const int index,
+                               int *returnValues)
+{
+    // Sample block 1
+    quadValuesForQuadIndex(index, board, order * order, returnValues);
+}
+
 // Returns the number of steps it took to solve the board.
 // Returns -1 if the board was not solved.
 static long long boardSolver(int randBoard[], const size_t& iTileCount)

@@ -32,8 +32,10 @@
 		32CC4D0A1801FD64008CE8FB /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		32CC4D0C1801FD64008CE8FB /* GA_Sudoku.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = GA_Sudoku.1; sourceTree = "<group>"; };
 		32CC4D14180208C9008CE8FB /* Population.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Population.h; sourceTree = "<group>"; };
-		32E6C6CC18032C83000F3DF4 /* Solver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Solver.h; sourceTree = "<group>"; };
+		32E6C6CC18032C83000F3DF4 /* Solver.A.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Solver.A.h; sourceTree = "<group>"; };
 		A902F7551808CC3800DFEEAE /* Helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Helpers.h; sourceTree = "<group>"; };
+		A9EC91D41816BE85006FF304 /* CayleyTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CayleyTable.h; sourceTree = "<group>"; };
+		A9EC91D51816F012006FF304 /* Solver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Solver.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,12 +78,14 @@
 		32CC4D091801FD64008CE8FB /* GA_Sudoku */ = {
 			isa = PBXGroup;
 			children = (
+				A9EC91D41816BE85006FF304 /* CayleyTable.h */,
 				3229CD78180379C400212611 /* Constants */,
-				32CC4D14180208C9008CE8FB /* Population.h */,
-				32E6C6CC18032C83000F3DF4 /* Solver.h */,
-				32CC4D0A1801FD64008CE8FB /* main.cpp */,
 				32CC4D0C1801FD64008CE8FB /* GA_Sudoku.1 */,
 				A902F7551808CC3800DFEEAE /* Helpers.h */,
+				32CC4D0A1801FD64008CE8FB /* main.cpp */,
+				32CC4D14180208C9008CE8FB /* Population.h */,
+				A9EC91D51816F012006FF304 /* Solver.h */,
+				32E6C6CC18032C83000F3DF4 /* Solver.A.h */,
 			);
 			path = GA_Sudoku;
 			sourceTree = "<group>";

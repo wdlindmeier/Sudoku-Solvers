@@ -72,6 +72,18 @@ int main(int argc, const char * argv[])
     cout << "Best Possible Score: " << bestScore << endl;
 
     /*
+    int cayleyBoard[81];
+    int seed[] = {9,3,6,1,4,7,2,5,8};
+    CayleyTable c(seed);
+    for(int i =0; i < 81; ++i)
+    {
+        cayleyBoard[i] = c.getbyIndex(i);
+    }
+    printBoard(cayleyBoard, 81);
+    exit(0);
+    */
+    
+    /*
     // Solve 10 random boards
     //for (int i = 0; i < 10; ++i)
     while (true)
